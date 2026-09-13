@@ -190,7 +190,7 @@ export default function DashboardPage() {
                 <div className="w-11 h-11 rounded-[14px] bg-[#f5f5f7] flex items-center justify-center mb-5 border border-black/[0.04] group-hover:bg-red-50 transition-colors duration-300">
                   <Youtube size={20} className="text-[#FF3B30]" />
                 </div>
-                <p className="text-[16px] font-semibold text-[#1d1d1f] tracking-tight">Summarize Video</p>
+                <p className="text-[16px] font-semibold text-[#1d1d1f] tracking-tight">Summarize Pre-Recorded Meeting</p>
                 <p className="text-[13px] text-[#86868b] mt-1 font-normal">Paste YouTube link</p>
               </div>
             </div>

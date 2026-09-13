@@ -41,7 +41,9 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/share') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon')
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/privacy-policy') ||
+    pathname.startsWith('/terms')
 
   if (!isPublic && !user) {
     const url = request.nextUrl.clone()
