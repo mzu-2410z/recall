@@ -1,0 +1,84 @@
+# =============================================================================
+# Recall — .gitignore
+# =============================================================================
+
+# ── Secrets ──────────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+!.env.example
+
+# ── Node / Next.js ────────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+dist/
+build/
+.vercel/
+
+# ── Python ───────────────────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# ── Media / Recordings (never commit binaries) ────────────────────────────────
+*.webm
+*.mp4
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.mkv
+*.avi
+*.mov
+
+# ── IDE / Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+*.lcov
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ── Misc ─────────────────────────────────────────────────────────────────────
+.cache/
+.turbo/
+*.tgz
+.npmrc
+!.npmrc.example
+
+# ── DO NOT IGNORE — agent logs are part of the public submission ──────────────
+# .agent-logs/ is intentionally tracked
