@@ -24,8 +24,37 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && data?.session) {
+      if (data.session.provider_token) {
+        try {
+          const { createClient: createServiceClient } = await import('@supabase/supabase-js')
+          const adminSupabase = createServiceClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            { auth: { persistSession: false } }
+          )
+
+          const updateData: Record<string, any> = {
+            google_access_token: data.session.provider_token,
+            updated_at: new Date().toISOString(),
+          }
+          if (data.session.provider_refresh_token) {
+            updateData.google_refresh_token = data.session.provider_refresh_token
+          }
+          if (data.session.expires_at) {
+            updateData.google_token_expiry = new Date(data.session.expires_at * 1000).toISOString()
+          }
+
+          await adminSupabase
+            .from('profiles')
+            .update(updateData)
+            .eq('id', data.session.user.id)
+        } catch (profileErr) {
+          console.error('[auth/callback] Error persisting provider tokens to profile:', profileErr)
+        }
+      }
+
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

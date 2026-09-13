@@ -24,15 +24,24 @@ export async function getValidAccessToken(userId: string): Promise<string> {
     .eq('id', userId)
     .single()
 
-  if (error || !profile?.google_refresh_token) {
-    throw new Error('Google OAuth not connected. Please connect your Google account.')
+  if (error || (!profile?.google_access_token && !profile?.google_refresh_token)) {
+    throw new Error('Google Calendar not connected. Please authorize access.')
   }
 
   const expiryDate = profile.google_token_expiry ? new Date(profile.google_token_expiry) : null
   const isExpired = !expiryDate || expiryDate.getTime() - Date.now() < 5 * 60 * 1000
 
+  // 1. If access token is valid and not expired, return immediately
   if (!isExpired && profile.google_access_token) {
     return profile.google_access_token
+  }
+
+  // 2. If access token is missing or expired, attempt refresh
+  if (!profile.google_refresh_token) {
+    if (profile.google_access_token) {
+      return profile.google_access_token
+    }
+    throw new Error('Google Calendar token expired. Please re-authorize access.')
   }
 
   // Refresh token via OAuth2 token endpoint
@@ -50,7 +59,10 @@ export async function getValidAccessToken(userId: string): Promise<string> {
   })
 
   if (!response.ok) {
-    throw new Error('Failed to refresh Google access token.')
+    if (profile.google_access_token && !isExpired) {
+      return profile.google_access_token
+    }
+    throw new Error('Failed to refresh Google access token. Please reconnect Google account.')
   }
 
   const data = await response.json()
@@ -92,8 +104,9 @@ export async function getUpcomingEvents(userId: string): Promise<CalendarEvent[]
   })
 
   if (!res.ok) {
-    console.warn(`[getUpcomingEvents] Google Calendar API error: ${res.statusText}`)
-    return []
+    const errorText = await res.text().catch(() => res.statusText)
+    console.error(`[getUpcomingEvents] Google Calendar API error (${res.status}): ${errorText}`)
+    throw new Error(`Google Calendar API error (${res.status}): ${res.statusText}`)
   }
 
   const data = await res.json()
