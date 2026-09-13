@@ -5,7 +5,7 @@ import {
   rateLimitedResponse, parseBody, analyzeMeetingSchema
 } from '@/lib/validations'
 import { checkRateLimit, rateLimitHeaders } from '@/lib/rate-limit'
-import { analyzeMeeting, type SummaryTemplate } from '@/lib/services/ai'
+import { analyzeMeeting, parseDeadlineDate, type SummaryTemplate } from '@/lib/services/ai'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { sendMeetingSummaryEmail } from '@/lib/services/resend'
 
@@ -44,6 +44,18 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     if (!meeting) return notFoundResponse()
 
+    // Update meeting status to analyzing
+    const adminSupabase = createServiceClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } }
+    )
+
+    await adminSupabase
+      .from('meetings')
+      .update({ status: 'analyzing', updated_at: new Date().toISOString() })
+      .eq('id', id)
+
     // Fetch transcript
     const { data: segments } = await supabase
       .from('transcript_segments')
@@ -64,12 +76,6 @@ export async function POST(request: NextRequest, { params }: Params) {
     const analysis = await analyzeMeeting(transcriptText, template, meeting.title)
 
     // Save to database (upsert — one per meeting per template)
-    const adminSupabase = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } }
-    )
-
     const { data: saved, error } = await adminSupabase
       .from('meeting_summaries')
       .upsert(
@@ -108,7 +114,7 @@ export async function POST(request: NextRequest, { params }: Params) {
           user_id: user.id,
           task: ai.task,
           owner: ai.owner,
-          deadline: ai.deadline,
+          deadline: parseDeadlineDate(ai.deadline),
         }))
       )
     }

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { unauthorizedResponse, errorResponse, parseBody, youtubeProcessSchema } from '@/lib/validations'
 import { checkRateLimit, rateLimitHeaders } from '@/lib/rate-limit'
 import { extractVideoId, fetchYouTubeTranscript, transcriptToText, youtubeSegmentsToInternal } from '@/lib/services/youtube'
-import { analyzeMeeting } from '@/lib/services/ai'
+import { analyzeMeeting, parseDeadlineDate } from '@/lib/services/ai'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { sendMeetingSummaryEmail } from '@/lib/services/resend'
 
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           user_id: user.id,
           task: ai.task,
           owner: ai.owner,
-          deadline: ai.deadline,
+          deadline: parseDeadlineDate(ai.deadline),
         }))
       )
     }
