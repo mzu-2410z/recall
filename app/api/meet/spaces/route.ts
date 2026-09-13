@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
   } catch (err: any) {
     console.error('[POST /api/meet/spaces]', err)
-    if (err?.message?.includes('Google not connected')) {
-      return errorResponse('Please connect your Google account first.', 403)
+    if (err?.message?.includes('Google Calendar not connected') || err?.message?.includes('Google not connected')) {
+      return errorResponse('Google account not connected. Please authorize Google access in Settings.', 403)
     }
-    return errorResponse('Failed to create Meet space')
+    return errorResponse(err?.message || 'Failed to create Google Meet space', 500)
   }
 }

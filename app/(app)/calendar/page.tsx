@@ -73,14 +73,18 @@ export default function CalendarPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: 'Ad-hoc Recall Meeting' })
       })
+      const data = await res.json()
       if (res.ok) {
-        const data = await res.json()
-        if (data.meetingUri) {
-          window.open(data.meetingUri, '_blank')
+        const uri = data.space?.meetingUri || data.meetingUri
+        if (uri) {
+          window.open(uri, '_blank')
         }
+      } else {
+        alert(data.error || 'Failed to create Google Meet space. Make sure Google account is connected with Meet permissions.')
       }
     } catch (err) {
       console.error('Error launching Google Meet space:', err)
+      alert('Unable to connect to Google Meet service.')
     }
   }
 

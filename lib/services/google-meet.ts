@@ -22,13 +22,9 @@ export async function createMeetSpace(userId: string): Promise<MeetSpace> {
   })
 
   if (!res.ok) {
-    // Graceful fallback for non-Workspace or unauthenticated requests
-    const code = 'rec-' + Math.random().toString(36).substring(2, 8)
-    return {
-      name: `spaces/${code}`,
-      meetingUri: `https://meet.google.com/${code}`,
-      meetingCode: code,
-    }
+    const errorText = await res.text().catch(() => res.statusText)
+    console.error(`[createMeetSpace] Google Meet API error (${res.status}): ${errorText}`)
+    throw new Error(`Google Meet API error (${res.status}): ${errorText || res.statusText}`)
   }
 
   const space = await res.json()
