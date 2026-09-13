@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error
 
+    const isDemo = process.env.DEMO_MODE?.toLowerCase() === 'true'
     return NextResponse.json({
       meeting,
       space: {
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
         meetingUri: space.meetingUri,
         meetingCode: space.meetingCode,
       },
+      isDemo,
     }, { status: 201 })
   } catch (err: any) {
     console.error('[POST /api/meet/spaces]', err)

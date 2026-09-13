@@ -10,6 +10,14 @@ export interface MeetSpace {
  * Creates a new Google Meet space via REST API.
  */
 export async function createMeetSpace(userId: string): Promise<MeetSpace> {
+  if (process.env.DEMO_MODE?.toLowerCase() === 'true') {
+    return {
+      name: 'spaces/demo-assessment-space',
+      meetingUri: 'https://meet.google.com/demo-assessment-space',
+      meetingCode: 'demo-assessment-space',
+    }
+  }
+
   const accessToken = await getValidAccessToken(userId)
 
   const res = await fetch('https://meet.googleapis.com/v2/spaces', {

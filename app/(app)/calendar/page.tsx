@@ -18,6 +18,7 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isDemo, setIsDemo] = useState(false)
 
   const fetchCalendarEvents = async () => {
     try {
@@ -26,6 +27,7 @@ export default function CalendarPage() {
       const res = await fetch('/api/calendar/events')
       const data = await res.json()
       if (res.ok) {
+        setIsDemo(Boolean(data.isDemo))
         const rawEvents = data.events || []
         const mappedEvents: CalendarEvent[] = rawEvents.map((e: any) => ({
           id: e.id || e.google_event_id,
@@ -255,12 +257,18 @@ export default function CalendarPage() {
                 <ShieldCheck className="h-5 w-5 text-[#34c759]" />
               </div>
               <div>
-                <p className="text-[14px] font-semibold text-[#30b855] tracking-tight">Google Workspace OAuth Active</p>
-                <p className="text-[12px] text-[#86868b] mt-0.5 leading-relaxed">Google Calendar API and Meet API scopes connected for automated event scanning.</p>
+                <p className="text-[14px] font-semibold text-[#30b855] tracking-tight">
+                  {isDemo ? 'Assessment Demo Mode Active' : 'Google Workspace OAuth Active'}
+                </p>
+                <p className="text-[12px] text-[#86868b] mt-0.5 leading-relaxed">
+                  {isDemo
+                    ? 'Deterministic demo calendar events and demo Meet space active for 8x assessment evaluation.'
+                    : 'Google Calendar API and Meet API scopes connected for automated event scanning.'}
+                </p>
               </div>
             </div>
             <span className="inline-flex items-center gap-1.5 text-[13px] text-[#30b855] font-medium bg-emerald-500/10 px-3.5 py-1.5 rounded-full">
-              <Check className="h-4 w-4" strokeWidth={2.5} /> Connected
+              <Check className="h-4 w-4" strokeWidth={2.5} /> {isDemo ? 'Demo Mode' : 'Connected'}
             </span>
           </div>
 

@@ -80,10 +80,83 @@ export async function getValidAccessToken(userId: string): Promise<string> {
   return newAccessToken
 }
 
+export function isDemoMode(): boolean {
+  return process.env.DEMO_MODE?.toLowerCase() === 'true'
+}
+
+export function getDemoCalendarEvents(): CalendarEvent[] {
+  const now = new Date()
+  const baseMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10, 0, 0).getTime()
+
+  return [
+    {
+      id: 'demo-ev-1',
+      title: 'Product Strategy Sync',
+      startTime: new Date(baseMs + 2 * 3600 * 1000).toISOString(),
+      endTime: new Date(baseMs + 3 * 3600 * 1000).toISOString(),
+      attendees: [
+        { name: 'Sarah Chen', email: 'sarah.chen@acme.corp' },
+        { name: 'Alex Rivera', email: 'alex.rivera@acme.corp' },
+        { name: 'Marcus Vance', email: 'marcus.vance@acme.corp' },
+      ],
+      meetLink: 'https://meet.google.com/demo-recall-space',
+      meetSpaceId: 'demo-recall-space',
+      isGoogleMeet: true,
+      rawEvent: { isDemo: true, source: 'Assessment Demo Mode' },
+    },
+    {
+      id: 'demo-ev-2',
+      title: 'Engineering Standup & Architecture Review',
+      startTime: new Date(baseMs + 4 * 3600 * 1000).toISOString(),
+      endTime: new Date(baseMs + 5 * 3600 * 1000).toISOString(),
+      attendees: [
+        { name: 'Elena Rostova', email: 'elena.rostova@acme.corp' },
+        { name: 'Devon Blake', email: 'devon.blake@acme.corp' },
+      ],
+      meetLink: 'https://meet.google.com/demo-recall-space',
+      meetSpaceId: 'demo-recall-space',
+      isGoogleMeet: true,
+      rawEvent: { isDemo: true, source: 'Assessment Demo Mode' },
+    },
+    {
+      id: 'demo-ev-3',
+      title: 'Client Discovery & Onboarding Call',
+      startTime: new Date(baseMs + 26 * 3600 * 1000).toISOString(),
+      endTime: new Date(baseMs + 27 * 3600 * 1000).toISOString(),
+      attendees: [
+        { name: 'Jessica Taylor', email: 'jessica.taylor@client.org' },
+        { name: 'David Kim', email: 'david.kim@client.org' },
+      ],
+      meetLink: 'https://meet.google.com/demo-recall-space',
+      meetSpaceId: 'demo-recall-space',
+      isGoogleMeet: true,
+      rawEvent: { isDemo: true, source: 'Assessment Demo Mode' },
+    },
+    {
+      id: 'demo-ev-4',
+      title: 'Weekly Operations & Growth Planning',
+      startTime: new Date(baseMs + 50 * 3600 * 1000).toISOString(),
+      endTime: new Date(baseMs + 51 * 3600 * 1000).toISOString(),
+      attendees: [
+        { name: 'Rachel Adams', email: 'rachel.adams@acme.corp' },
+        { name: 'Michael Scott', email: 'michael.scott@acme.corp' },
+      ],
+      meetLink: 'https://meet.google.com/demo-recall-space',
+      meetSpaceId: 'demo-recall-space',
+      isGoogleMeet: true,
+      rawEvent: { isDemo: true, source: 'Assessment Demo Mode' },
+    },
+  ]
+}
+
 /**
  * Fetches upcoming Google Calendar events for the next 7 days using REST API.
  */
 export async function getUpcomingEvents(userId: string): Promise<CalendarEvent[]> {
+  if (isDemoMode()) {
+    return getDemoCalendarEvents()
+  }
+
   const accessToken = await getValidAccessToken(userId)
 
   const now = new Date()
@@ -151,6 +224,9 @@ export async function getUpcomingEvents(userId: string): Promise<CalendarEvent[]
  * Caches calendar events in Supabase for offline access.
  */
 export async function syncCalendarEvents(userId: string): Promise<CalendarEvent[]> {
+  if (isDemoMode()) {
+    return getDemoCalendarEvents()
+  }
   const events = await getUpcomingEvents(userId)
   const supabase = await createClient()
 

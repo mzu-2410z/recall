@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { unauthorizedResponse, errorResponse } from '@/lib/validations'
-import { syncCalendarEvents } from '@/lib/services/google-calendar'
+import { syncCalendarEvents, isDemoMode, getDemoCalendarEvents } from '@/lib/services/google-calendar'
 
 // ── GET /api/calendar/events ──────────────────────────────────────────────────
 // Returns cached calendar events. If stale, returns cached data + triggers sync.
@@ -10,6 +10,11 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return unauthorizedResponse()
+
+    if (isDemoMode()) {
+      const events = getDemoCalendarEvents()
+      return NextResponse.json({ events, synced: true, isDemo: true })
+    }
 
     const { searchParams } = new URL(request.url)
     const forceSync = searchParams.get('sync') === 'true'
