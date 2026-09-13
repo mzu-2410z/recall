@@ -30,8 +30,38 @@ export async function POST(request: NextRequest) {
     const result = await answerQuestion(user.id, parsed.data.question)
 
     return NextResponse.json(result, { headers: rateLimitHeaders(rl) })
-  } catch (err) {
-    console.error('[POST /api/ask]', err)
+  } catch (err: any) {
+    console.error('[POST /api/ask] Exception caught:')
+    if (err instanceof Error) {
+      console.error(`Name: ${err.name}`)
+      console.error(`Message: ${err.message}`)
+      console.error(`Stack: ${err.stack}`)
+    } else {
+      console.error('Raw Error:', err)
+    }
+
+    if (err && typeof err === 'object') {
+      const extra: Record<string, any> = {}
+      if ('status' in err) extra.status = err.status
+      if ('statusCode' in err) extra.statusCode = err.statusCode
+      if ('code' in err) extra.code = err.code
+      if ('details' in err) extra.details = err.details
+      if ('hint' in err) extra.hint = err.hint
+      if ('error' in err) extra.error = err.error
+      if ('body' in err) extra.body = err.body
+      if ('response' in err) {
+        extra.response = {
+          status: err.response?.status,
+          statusText: err.response?.statusText,
+          data: err.response?.data,
+        }
+      }
+
+      if (Object.keys(extra).length > 0) {
+        console.error('Additional Error Details:', JSON.stringify(extra, null, 2))
+      }
+    }
+
     return errorResponse('Failed to answer question. Please try again.')
   }
 }
