@@ -5,6 +5,7 @@ import { checkRateLimit, rateLimitHeaders } from '@/lib/rate-limit'
 import { extractVideoId, fetchYouTubeTranscript, transcriptToText, youtubeSegmentsToInternal } from '@/lib/services/youtube'
 import { analyzeMeeting } from '@/lib/services/ai'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { sendMeetingSummaryEmail } from '@/lib/services/resend'
 
 // ── POST /api/youtube/process ─────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
@@ -112,6 +113,22 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq('id', meeting.id)
+
+    if (user.email) {
+      try {
+        await sendMeetingSummaryEmail({
+          to: user.email,
+          meetingTitle: title,
+          summary: analysis.summary,
+          keyTakeaways: analysis.key_takeaways,
+          decisions: analysis.decisions,
+          actionItems: analysis.action_items,
+          topics: analysis.topics,
+        })
+      } catch (emailErr) {
+        console.error('[POST /api/youtube/process] Post-analysis email error:', emailErr)
+      }
+    }
 
     return NextResponse.json({ meetingId: meeting.id, title }, {
       status: 201,

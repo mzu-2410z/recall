@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { unauthorizedResponse, errorResponse } from '@/lib/validations'
-import { getSignedUrl } from '@/lib/services/storage'
 
 type Params = { params: Promise<{ meetingId: string }> }
 
@@ -14,36 +13,26 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return unauthorizedResponse()
 
-    const meetingId = request.nextUrl.searchParams.get('meetingId')
-    if (!meetingId) return errorResponse('meetingId required', 400)
+    // Parse FormData — the record page sends: file, title, duration
+    const formData = await request.formData()
+    const file = formData.get('file') as File | null
+    const title = formData.get('title') as string ?? 'Untitled Meeting'
+    const durationStr = formData.get('duration') as string ?? '0'
+    const duration = parseInt(durationStr, 10) || 0
 
-    // Verify meeting ownership
-    const { data: meeting } = await supabase
-      .from('meetings')
-      .select('id, status')
-      .eq('id', meetingId)
-      .eq('user_id', user.id)
-      .single()
+    if (!file) return errorResponse('No recording file provided', 400)
 
-    if (!meeting) return errorResponse('Meeting not found', 404)
-
-    // Check content length
-    const contentLength = request.headers.get('content-length')
-    if (contentLength && parseInt(contentLength) > MAX_SIZE) {
+    if (file.size > MAX_SIZE) {
       return errorResponse(`Recording too large. Maximum size is ${MAX_SIZE / 1024 / 1024}MB`, 413)
     }
 
-    const contentType = request.headers.get('content-type') || 'audio/webm'
-    // Validate content type
+    const contentType = file.type || 'video/webm'
     const allowedTypes = ['audio/webm', 'video/webm', 'audio/ogg', 'audio/mp4', 'video/mp4']
     if (!allowedTypes.some((t) => contentType.startsWith(t))) {
       return errorResponse('Unsupported file type', 415)
     }
 
-    const ext = contentType.includes('ogg') ? 'ogg' : contentType.includes('mp4') ? 'mp4' : 'webm'
-    const storagePath = `recordings/${user.id}/${meetingId}/recording.${ext}`
-
-    // Stream directly to Supabase storage using service role
+    // Use service role for DB + storage operations
     const { createClient: createServiceClient } = await import('@supabase/supabase-js')
     const adminSupabase = createServiceClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,14 +40,43 @@ export async function POST(request: NextRequest) {
       { auth: { persistSession: false } }
     )
 
-    const blob = await request.blob()
+    // 1. Create meeting record first
+    const { data: meeting, error: meetingError } = await adminSupabase
+      .from('meetings')
+      .insert({
+        user_id: user.id,
+        title,
+        source: 'browser',
+        status: 'uploading',
+        started_at: new Date().toISOString(),
+        duration_seconds: duration > 0 ? duration : null,
+      })
+      .select('id')
+      .single()
+
+    if (meetingError || !meeting) {
+      throw new Error(`Failed to create meeting: ${meetingError?.message}`)
+    }
+
+    const meetingId = meeting.id
+
+    // 2. Upload to Supabase storage
+    const ext = contentType.includes('ogg') ? 'ogg' : contentType.includes('mp4') ? 'mp4' : 'webm'
+    const storagePath = `recordings/${user.id}/${meetingId}/recording.${ext}`
+
+    const blob = new Blob([await file.arrayBuffer()], { type: contentType })
+
     const { error: uploadError } = await adminSupabase.storage
       .from('recordings')
       .upload(storagePath, blob, { contentType, upsert: true })
 
-    if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`)
+    if (uploadError) {
+      // Clean up meeting record if upload failed
+      await adminSupabase.from('meetings').delete().eq('id', meetingId)
+      throw new Error(`Upload failed: ${uploadError.message}`)
+    }
 
-    // Update meeting record
+    // 3. Update meeting with recording path and status
     await adminSupabase
       .from('meetings')
       .update({

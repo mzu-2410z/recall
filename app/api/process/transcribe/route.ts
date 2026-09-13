@@ -8,6 +8,8 @@ import { createClient as createServiceClient } from '@supabase/supabase-js'
 // ── POST /api/process/transcribe ─────────────────────────────────────────────
 // Fetches the recording from storage and transcribes it via Groq Whisper
 export async function POST(request: NextRequest) {
+  let meetingId: string | undefined
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -19,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const meetingId = body?.meetingId as string
+    meetingId = body?.meetingId as string
     if (!meetingId) return errorResponse('meetingId required', 400)
 
     // Verify ownership
@@ -39,7 +41,7 @@ export async function POST(request: NextRequest) {
       { auth: { persistSession: false } }
     )
 
-    // Update status
+    // Update status to transcribing
     await adminSupabase
       .from('meetings')
       .update({ status: 'transcribing', updated_at: new Date().toISOString() })
@@ -57,10 +59,10 @@ export async function POST(request: NextRequest) {
     // Transcribe with Groq Whisper
     const segments = await transcribeAudio(fileData, 'recording.webm')
 
-    // Save segments
+    // Save segments to DB
     await saveTranscriptSegments(meetingId, user.id, segments)
 
-    // Update meeting status
+    // Update meeting status to analyzing
     await adminSupabase
       .from('meetings')
       .update({
@@ -77,22 +79,25 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error('[POST /api/process/transcribe]', err)
 
-    // Mark meeting as failed
-    const body = await request.json().catch(() => ({}))
-    if (body?.meetingId) {
-      const adminSupabase = createServiceClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { persistSession: false } }
-      )
-      await adminSupabase
-        .from('meetings')
-        .update({
-          status: 'failed',
-          processing_error: 'Transcription failed',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', body.meetingId)
+    // Mark meeting as failed if we know the ID — don't try to re-parse body
+    if (meetingId) {
+      try {
+        const adminSupabase = createServiceClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          { auth: { persistSession: false } }
+        )
+        await adminSupabase
+          .from('meetings')
+          .update({
+            status: 'failed',
+            processing_error: String(err instanceof Error ? err.message : 'Transcription failed'),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', meetingId)
+      } catch (updateErr) {
+        console.error('Failed to mark meeting as failed:', updateErr)
+      }
     }
 
     return errorResponse('Transcription failed. Please try again.')

@@ -11,7 +11,7 @@ import {
 import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Home', icon: Home },
+  { href: '/dashboard', label: 'Home', icon: Home },
   { href: '/meetings', label: 'Meetings', icon: Video },
   { href: '/calendar', label: 'Calendar', icon: Calendar },
   { href: '/search', label: 'Search', icon: Search },
@@ -65,7 +65,7 @@ export default function AppLayoutClient({ children }: { children: React.ReactNod
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+            const isActive = href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href)
             return (
               <Link
                 key={href}

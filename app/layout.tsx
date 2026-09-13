@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="h-full bg-slate-900 text-slate-100 antialiased">
-      <body className={`${inter.className} min-h-full flex flex-col`}>
+    <html lang="en" className="h-full antialiased">
+      <body className={`${inter.className} min-h-full flex flex-col`} style={{ margin: 0, background: 'white' }}>
         {children}
       </body>
     </html>

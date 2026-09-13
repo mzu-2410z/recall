@@ -41,10 +41,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     if (!user) return unauthorizedResponse()
 
     const { searchParams } = new URL(request.url)
-    const itemId = searchParams.get('itemId')
+    const body = await request.json().catch(() => ({}))
+
+    const itemId = searchParams.get('itemId') || searchParams.get('id') || body.itemId || body.id
     if (!itemId) return errorResponse('itemId required', 400)
 
-    const body = await request.json()
     const completed = typeof body.completed === 'boolean' ? body.completed : undefined
     if (completed === undefined) return errorResponse('completed field required', 400)
 

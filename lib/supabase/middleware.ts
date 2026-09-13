@@ -33,23 +33,33 @@ export async function updateSession(request: NextRequest) {
 
   // Protect app routes — redirect to login if not authenticated
   const pathname = request.nextUrl.pathname
-  const isAppRoute = pathname.startsWith('/') &&
-    !pathname.startsWith('/login') &&
-    !pathname.startsWith('/share') &&
-    !pathname.startsWith('/api') &&
-    !pathname.startsWith('/_next') &&
-    !pathname.startsWith('/favicon')
 
-  if (isAppRoute && !user) {
+  // Landing page and auth pages are always public
+  const isPublic =
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/share') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon')
+
+  if (!isPublic && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // Redirect authenticated users from landing → dashboard
+  if (pathname === '/' && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
   // Redirect authenticated users away from login page
   if (pathname === '/login' && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 

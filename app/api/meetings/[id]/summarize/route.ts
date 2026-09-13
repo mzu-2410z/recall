@@ -7,6 +7,7 @@ import {
 import { checkRateLimit, rateLimitHeaders } from '@/lib/rate-limit'
 import { analyzeMeeting, type SummaryTemplate } from '@/lib/services/ai'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { sendMeetingSummaryEmail } from '@/lib/services/resend'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -117,6 +118,23 @@ export async function POST(request: NextRequest, { params }: Params) {
       .from('meetings')
       .update({ status: 'complete', updated_at: new Date().toISOString() })
       .eq('id', id)
+
+    // Trigger post-analysis email dispatch if recipient email exists
+    if (user.email) {
+      try {
+        await sendMeetingSummaryEmail({
+          to: user.email,
+          meetingTitle: meeting.title || 'Meeting Summary',
+          summary: analysis.summary,
+          keyTakeaways: analysis.key_takeaways,
+          decisions: analysis.decisions,
+          actionItems: analysis.action_items,
+          topics: analysis.topics,
+        })
+      } catch (emailErr) {
+        console.error('[POST /api/meetings/[id]/summarize] Post-analysis email dispatch error:', emailErr)
+      }
+    }
 
     return NextResponse.json(saved, {
       headers: rateLimitHeaders(rl),

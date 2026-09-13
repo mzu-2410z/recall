@@ -44,6 +44,13 @@ const DEFAULT_TEMPLATES: Template[] = [
   }
 ]
 
+const CATEGORY_STYLES: Record<Template['category'], { gradient: string; label: string }> = {
+  general: { gradient: 'linear-gradient(135deg, #0071e3 0%, #2997ff 100%)', label: 'General' },
+  sales: { gradient: 'linear-gradient(135deg, #34c759 0%, #30d158 100%)', label: 'Sales' },
+  management: { gradient: 'linear-gradient(135deg, #ff9f0a 0%, #ff6723 100%)', label: 'Management' },
+  engineering: { gradient: 'linear-gradient(135deg, #5e5ce6 0%, #bf5af2 100%)', label: 'Engineering' },
+}
+
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>(DEFAULT_TEMPLATES)
   const [selectedTemplate, setSelectedTemplate] = useState<string>('1')
@@ -72,124 +79,356 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Summary & AI Templates</h1>
-          <p className="text-xs text-slate-400">Customize how Recall synthesizes meeting notes and action items.</p>
-        </div>
+    <>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        <button
-          onClick={() => setIsCreating(!isCreating)}
-          className="flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors shadow-md"
-        >
-          <Plus className="h-4 w-4" /> Create Custom Template
-        </button>
-      </div>
+        .templates-root {
+          font-family: -apple-system, 'Inter', BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
 
-      {/* New Template Form */}
-      {isCreating && (
-        <form onSubmit={handleCreateTemplate} className="rounded-xl border border-cyan-500/30 bg-slate-900/90 p-5 space-y-4 backdrop-blur-sm">
-          <h3 className="text-sm font-semibold text-cyan-400 flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> New AI Summary Template
-          </h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        .glass-panel {
+          background: rgba(255, 255, 255, 0.72);
+          backdrop-filter: blur(40px) saturate(180%);
+          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.85);
+          box-shadow:
+            0 0 0 0.5px rgba(0, 0, 0, 0.03),
+            0 1px 3px rgba(0, 0, 0, 0.04),
+            0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .glass-form {
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(60px) saturate(200%);
+          -webkit-backdrop-filter: blur(60px) saturate(200%);
+          border: 1px solid rgba(0, 113, 227, 0.2);
+          box-shadow:
+            0 0 0 0.5px rgba(0, 0, 0, 0.03),
+            0 4px 16px rgba(0, 113, 227, 0.08),
+            0 20px 60px rgba(0, 0, 0, 0.08);
+        }
+
+        .glass-input {
+          background: rgba(255, 255, 255, 0.6);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          color: #1d1d1f;
+        }
+
+        .glass-input::placeholder {
+          color: #a1a1a6;
+        }
+
+        .glass-input:focus {
+          background: rgba(255, 255, 255, 0.9);
+          border-color: rgba(0, 113, 227, 0.4);
+          box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+          outline: none;
+        }
+
+        .apple-btn-primary {
+          background: linear-gradient(180deg, #0077ED 0%, #0071e3 100%);
+          box-shadow: 0 1px 3px rgba(0, 113, 227, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .apple-btn-primary:hover:not(:disabled) {
+          background: linear-gradient(180deg, #0080f7 0%, #0077ED 100%);
+          box-shadow: 0 2px 8px rgba(0, 113, 227, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          transform: translateY(-0.5px);
+        }
+
+        .apple-btn-secondary {
+          background: rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          color: #1d1d1f;
+          transition: all 0.2s ease;
+        }
+
+        .apple-btn-secondary:hover {
+          background: rgba(255, 255, 255, 0.95);
+          border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        .template-card {
+          background: rgba(255, 255, 255, 0.68);
+          backdrop-filter: blur(40px) saturate(180%);
+          -webkit-backdrop-filter: blur(40px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.85);
+          box-shadow:
+            0 0 0 0.5px rgba(0, 0, 0, 0.03),
+            0 1px 3px rgba(0, 0, 0, 0.04),
+            0 8px 32px rgba(0, 0, 0, 0.05);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .template-card:hover {
+          transform: translateY(-2px);
+          box-shadow:
+            0 0 0 0.5px rgba(0, 0, 0, 0.03),
+            0 4px 12px rgba(0, 0, 0, 0.06),
+            0 16px 48px rgba(0, 0, 0, 0.08);
+        }
+
+        .template-card-selected {
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(0, 113, 227, 0.35);
+          box-shadow:
+            0 0 0 3px rgba(0, 113, 227, 0.08),
+            0 4px 16px rgba(0, 113, 227, 0.12),
+            0 16px 48px rgba(0, 113, 227, 0.08);
+          transform: translateY(-2px);
+        }
+
+        .prompt-preview {
+          background: rgba(0, 0, 0, 0.025);
+          border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .category-badge {
+          background: rgba(0, 0, 0, 0.04);
+          color: #86868b;
+        }
+
+        .form-slide-in {
+          animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      <div className="templates-root min-h-screen" style={{ background: 'linear-gradient(180deg, #f5f5f7 0%, #fbfbfd 40%, #f5f5f7 100%)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-10 lg:py-14 space-y-8">
+
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Template Name</label>
-              <input
-                type="text"
-                required
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="e.g. Board Meeting Brief"
-                className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              />
+              <h1
+                className="font-semibold tracking-tight"
+                style={{ fontSize: '34px', lineHeight: '1.1', color: '#1d1d1f', letterSpacing: '-0.015em' }}
+              >
+                Summary & AI Templates
+              </h1>
+              <p
+                className="mt-2"
+                style={{ fontSize: '17px', color: '#86868b', fontWeight: 400, letterSpacing: '-0.005em' }}
+              >
+                Customize how Recall synthesizes meeting notes and action items.
+              </p>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Short Description</label>
-              <input
-                type="text"
-                value={newDesc}
-                onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="e.g. Focus on financial metrics and governance"
-                className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1">Custom Prompt Instructions</label>
-            <textarea
-              required
-              rows={3}
-              value={newPrompt}
-              onChange={(e) => setNewPrompt(e.target.value)}
-              placeholder="Instruct the AI model what specific details to extract..."
-              className="w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-slate-100 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => setIsCreating(false)}
-              className="rounded-lg border border-slate-800 px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-800"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-cyan-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500"
-            >
-              Save Template
-            </button>
-          </div>
-        </form>
-      )}
 
-      {/* Templates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {templates.map(tmpl => {
-          const isSelected = selectedTemplate === tmpl.id
-          return (
-            <div
-              key={tmpl.id}
-              onClick={() => setSelectedTemplate(tmpl.id)}
-              className={`group cursor-pointer rounded-xl border p-5 transition-all space-y-3 ${
-                isSelected
-                  ? 'border-cyan-500/50 bg-cyan-500/10 shadow-lg shadow-cyan-500/5'
-                  : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
-              }`}
+            <button
+              onClick={() => setIsCreating(!isCreating)}
+              className="apple-btn-primary flex items-center gap-2 rounded-full text-white font-semibold self-start sm:self-auto"
+              style={{ fontSize: '14px', padding: '10px 20px' }}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className={`rounded-lg p-2 ${isSelected ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-300'}`}>
-                    <FileText className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
+              Create Custom Template
+            </button>
+          </div>
+
+          {/* New Template Form */}
+          {isCreating && (
+            <form onSubmit={handleCreateTemplate} className="glass-form form-slide-in rounded-2xl p-7 space-y-5">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, #0071e3 0%, #2997ff 100%)' }}
+                >
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold" style={{ fontSize: '17px', color: '#1d1d1f', letterSpacing: '-0.01em' }}>
+                    New AI Summary Template
+                  </h3>
+                  <p style={{ fontSize: '13px', color: '#86868b', marginTop: '1px' }}>
+                    Define how the AI should structure your meeting notes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-2">
+                <div>
+                  <label
+                    className="block font-medium mb-2"
+                    style={{ fontSize: '13px', color: '#1d1d1f' }}
+                  >
+                    Template Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="e.g. Board Meeting Brief"
+                    className="glass-input w-full rounded-xl px-4 py-2.5"
+                    style={{ fontSize: '14px' }}
+                  />
+                </div>
+                <div>
+                  <label
+                    className="block font-medium mb-2"
+                    style={{ fontSize: '13px', color: '#1d1d1f' }}
+                  >
+                    Short Description
+                  </label>
+                  <input
+                    type="text"
+                    value={newDesc}
+                    onChange={(e) => setNewDesc(e.target.value)}
+                    placeholder="e.g. Focus on financial metrics and governance"
+                    className="glass-input w-full rounded-xl px-4 py-2.5"
+                    style={{ fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  className="block font-medium mb-2"
+                  style={{ fontSize: '13px', color: '#1d1d1f' }}
+                >
+                  Custom Prompt Instructions
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={newPrompt}
+                  onChange={(e) => setNewPrompt(e.target.value)}
+                  placeholder="Instruct the AI model what specific details to extract..."
+                  className="glass-input w-full rounded-xl px-4 py-3 resize-none"
+                  style={{ fontSize: '14px', lineHeight: '1.5' }}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsCreating(false)}
+                  className="apple-btn-secondary rounded-full font-medium"
+                  style={{ fontSize: '14px', padding: '9px 18px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="apple-btn-primary rounded-full text-white font-semibold"
+                  style={{ fontSize: '14px', padding: '9px 20px' }}
+                >
+                  Save Template
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Templates Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {templates.map(tmpl => {
+              const isSelected = selectedTemplate === tmpl.id
+              const categoryStyle = CATEGORY_STYLES[tmpl.category]
+
+              return (
+                <div
+                  key={tmpl.id}
+                  onClick={() => setSelectedTemplate(tmpl.id)}
+                  className={`cursor-pointer rounded-2xl p-6 space-y-4 ${isSelected ? 'template-card-selected' : 'template-card'}`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <div
+                        className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        style={{
+                          background: categoryStyle.gradient,
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                        }}
+                      >
+                        <FileText className="h-5 w-5 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3
+                            className="font-semibold truncate"
+                            style={{ fontSize: '17px', color: '#1d1d1f', letterSpacing: '-0.01em' }}
+                          >
+                            {tmpl.name}
+                          </h3>
+                          {tmpl.isDefault && (
+                            <span
+                              className="category-badge rounded-full font-medium"
+                              style={{ fontSize: '11px', padding: '2px 8px' }}
+                            >
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <span
+                          className="font-medium"
+                          style={{
+                            fontSize: '12px',
+                            background: categoryStyle.gradient,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                            letterSpacing: '0.02em',
+                          }}
+                        >
+                          {categoryStyle.label}
+                        </span>
+                      </div>
+                    </div>
+
+                    {isSelected && (
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                        style={{
+                          background: 'linear-gradient(180deg, #0077ED 0%, #0071e3 100%)',
+                          boxShadow: '0 2px 6px rgba(0, 113, 227, 0.35)',
+                        }}
+                      >
+                        <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                      {tmpl.name}
-                      {tmpl.isDefault && (
-                        <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-slate-400 font-normal">Default</span>
-                      )}
-                    </h3>
-                    <span className="text-[10px] font-medium text-cyan-400 uppercase tracking-wider">{tmpl.category}</span>
+
+                  <p style={{ fontSize: '14px', color: '#424245', lineHeight: '1.5' }}>
+                    {tmpl.description}
+                  </p>
+
+                  <div className="prompt-preview rounded-xl p-3.5">
+                    <p
+                      className="font-semibold uppercase mb-1.5"
+                      style={{ fontSize: '10px', color: '#86868b', letterSpacing: '0.08em' }}
+                    >
+                      Prompt Logic
+                    </p>
+                    <p
+                      className="line-clamp-2"
+                      style={{
+                        fontSize: '12px',
+                        color: '#6e6e73',
+                        lineHeight: '1.5',
+                        fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+                      }}
+                    >
+                      {tmpl.systemPrompt}
+                    </p>
                   </div>
                 </div>
-
-                {isSelected && (
-                  <CheckCircle2 className="h-5 w-5 text-cyan-400" />
-                )}
-              </div>
-
-              <p className="text-xs text-slate-300 leading-relaxed">{tmpl.description}</p>
-
-              <div className="rounded-lg bg-slate-950/60 p-3 border border-slate-800/80">
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Prompt Logic</p>
-                <p className="text-[11px] font-mono text-slate-400 line-clamp-2">{tmpl.systemPrompt}</p>
-              </div>
-            </div>
-          )
-        })}
+              )
+            })}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
