@@ -227,7 +227,7 @@ export default function PrivacyPage() {
               </ul>
               <div className="sidebar-footer-info">
                 <Clock size={12} color="#78716C" />
-                <span>Last Updated: Sep 26, 2026</span>
+                <span>Last Updated: Nov 14, 2025</span>
               </div>
             </div>
           </aside>

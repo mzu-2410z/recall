@@ -288,7 +288,7 @@ export default function LoginPage() {
 
               <span className="text-[#D6D3D1] mx-2">·</span>
               
-              <a href="/" style={{ textDecoration: 'none' }}>
+              <a href="/privacy" style={{ textDecoration: 'none' }}>
                 <span className="legal-link cursor-pointer">Privacy Policy</span>
               </a>
 

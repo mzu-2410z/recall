@@ -227,7 +227,7 @@ export default function PrivacyPage() {
               </ul>
               <div className="sidebar-footer-info">
                 <Clock size={12} color="#78716C" />
-                <span>Last Updated: Sep 26, 2026</span>
+                <span>Last Updated: Nov 14, 2025</span>
               </div>
             </div>
           </aside>
@@ -249,7 +249,7 @@ export default function PrivacyPage() {
               <div className="meta-box">
                 <div className="meta-item">
                   <Clock size={14} color="#0F766E" />
-                  <span>Effective Date: September 26, 2026</span>
+                  <span>Effective Date: November 14, 2025</span>
                 </div>
                 <div className="meta-item">
                   <Lock size={14} color="#B45309" />

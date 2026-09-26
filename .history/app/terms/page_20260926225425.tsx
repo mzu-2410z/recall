@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import Link from 'next/link'
 import {
-  ArrowLeft, Shield, Clock, Eye, Lock, Database,
-  Key, Globe, ChevronRight, CheckCircle2, Mail, Trash2
+  ArrowLeft, Scale, Clock, ShieldCheck, Lock,
+  Globe, ChevronRight, FileText, ExternalLink
 } from 'lucide-react'
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -61,15 +61,15 @@ function useActiveSection(sectionIds: string[], offset = 120) {
 function ScrollGradientBackground() {
   const progress = useScrollProgress()
   const bg = useMemo(() => {
-    const h1 = 170 + progress * 30
-    const h2 = 270 + progress * 20
+    const h1 = 30 + progress * 20
+    const h2 = 170 + progress * 40
     return {
-      c1: `hsla(${h1}, 35%, 90%, 0.45)`,
-      c2: `hsla(${h2}, 30%, 92%, 0.35)`,
-      x1: 80 - progress * 35,
-      y1: 15 + progress * 20,
-      x2: 20 + progress * 35,
-      y2: 75 - progress * 25,
+      c1: `hsla(${h1}, 55%, 91%, 0.5)`,
+      c2: `hsla(${h2}, 35%, 90%, 0.3)`,
+      x1: 15 + progress * 40,
+      y1: 8 + progress * 25,
+      x2: 85 - progress * 40,
+      y2: 55 + progress * 20,
     }
   }, [progress])
 
@@ -86,11 +86,11 @@ function ScrollGradientBackground() {
       }} />
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.015 }} aria-hidden>
         <defs>
-          <pattern id="privacy-grid" width="52" height="52" patternUnits="userSpaceOnUse">
+          <pattern id="terms-grid" width="52" height="52" patternUnits="userSpaceOnUse">
             <path d="M 52 0 L 0 0 0 52" fill="none" stroke="#1C1917" strokeWidth="0.5" />
           </pattern>
         </defs>
-        <rect width="100%" height="100%" fill="url(#privacy-grid)" />
+        <rect width="100%" height="100%" fill="url(#terms-grid)" />
       </svg>
     </div>
   )
@@ -104,12 +104,12 @@ function FloatingOrbs() {
   return (
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: -1 }} aria-hidden>
       <div className="rc-orb rc-orb-1" style={{
-        position: 'absolute', top: '10%', right: '10%', width: 380, height: 380,
-        borderRadius: '50%', background: 'radial-gradient(circle, rgba(15,118,110,0.06), transparent 70%)', filter: 'blur(55px)',
+        position: 'absolute', top: '15%', left: '5%', width: 350, height: 350,
+        borderRadius: '50%', background: 'radial-gradient(circle, rgba(180,83,9,0.06), transparent 70%)', filter: 'blur(50px)',
       }} />
       <div className="rc-orb rc-orb-2" style={{
-        position: 'absolute', top: '60%', left: '8%', width: 340, height: 340,
-        borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,0.04), transparent 70%)', filter: 'blur(50px)',
+        position: 'absolute', top: '55%', right: '5%', width: 400, height: 400,
+        borderRadius: '50%', background: 'radial-gradient(circle, rgba(15,118,110,0.05), transparent 70%)', filter: 'blur(60px)',
       }} />
     </div>
   )
@@ -144,21 +144,21 @@ function Logo() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const SECTIONS = [
-  { id: 'collection', title: '1. Information We Collect' },
-  { id: 'google-use', title: '2. Google OAuth Permissions' },
-  { id: 'processing', title: '3. Processing & AI Storage' },
-  { id: 'protection', title: '4. Information Security' },
-  { id: 'retention', title: '5. Retention & Deletion' },
-  { id: 'cookies', title: '6. Cookies & Tracking' },
-  { id: 'user-rights', title: '7. Your Privacy Rights' },
-  { id: 'contact', title: '8. Contact Security Desk' },
+  { id: 'acceptance', title: '1. Acceptance of Terms' },
+  { id: 'description', title: '2. Description of Service' },
+  { id: 'accounts', title: '3. User Accounts & Security' },
+  { id: 'privacy-google', title: '4. Data & Google Permissions' },
+  { id: 'proprietary-rights', title: '5. Proprietary Rights' },
+  { id: 'prohibited-conduct', title: '6. Prohibited Actions' },
+  { id: 'liability', title: '7. Limitation of Liability' },
+  { id: 'termination', title: '8. Account Termination' },
 ]
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE EXPORT
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function PrivacyPage() {
+export default function TermsPage() {
   const scrollProgress = useScrollProgress()
   const sectionIds = useMemo(() => SECTIONS.map(s => s.id), [])
   const activeSection = useActiveSection(sectionIds)
@@ -180,19 +180,19 @@ export default function PrivacyPage() {
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 200, pointerEvents: 'none' }}>
         <div style={{
           height: '100%', width: `${scrollProgress * 100}%`,
-          background: 'linear-gradient(90deg, #0F766E, #B45309, #7C3AED)',
+          background: 'linear-gradient(90deg, #B45309, #0F766E, #7C3AED)',
           borderRadius: '0 2px 2px 0',
           transition: 'width 50ms linear',
-          boxShadow: '0 0 8px rgba(15,118,110,0.3)',
+          boxShadow: '0 0 8px rgba(180,83,9,0.3)',
         }} />
       </div>
 
       <FloatingOrbs />
 
       {/* Subnav Navigation Header */}
-      <nav className="privacy-nav">
-        <div className="privacy-nav-container">
-          <Link href="/" className="privacy-logo-link">
+      <nav className="terms-nav">
+        <div className="terms-nav-container">
+          <Link href="/" className="terms-logo-link">
             <Logo />
           </Link>
           <Link href="/" className="btn-back-home">
@@ -202,15 +202,15 @@ export default function PrivacyPage() {
         </div>
       </nav>
 
-      <main className="privacy-root">
-        <div className="privacy-grid-layout">
+      <main className="terms-root">
+        <div className="terms-grid-layout">
           
           {/* Sticky Sidebar Navigation (ScrollSpy enabled) */}
-          <aside className="privacy-sidebar">
+          <aside className="terms-sidebar">
             <div className="sidebar-glass-card">
               <div className="sidebar-header">
-                <Shield size={16} color="#0F766E" strokeWidth={2.2} />
-                <span>Privacy Centre</span>
+                <Scale size={16} color="#B45309" strokeWidth={2.2} />
+                <span>Documents</span>
               </div>
               <ul className="toc-list">
                 {SECTIONS.map(s => (
@@ -227,169 +227,150 @@ export default function PrivacyPage() {
               </ul>
               <div className="sidebar-footer-info">
                 <Clock size={12} color="#78716C" />
-                <span>Last Updated: Sep 26, 2026</span>
+                <span>Last Updated: Nov 14, 2025</span>
               </div>
             </div>
           </aside>
 
           {/* Core Text Body */}
-          <article className="privacy-content-card">
+          <article className="terms-content-card">
             
             {/* Title Section */}
             <div className="content-header">
               <span className="section-badge">
                 <span className="badge-dot" />
-                Confidentiality Blueprint
+                Legal Framework
               </span>
-              <h1 className="privacy-title">Privacy Policy</h1>
-              <p className="privacy-subtitle">
-                At Recall, we believe your conversations belong to you. Explore how we secure and process your meeting data.
+              <h1 className="terms-title">Terms of Service</h1>
+              <p className="terms-subtitle">
+                Please read these terms carefully before deploying or connecting your calendar workspace to Recall.
               </p>
               
               <div className="meta-box">
                 <div className="meta-item">
-                  <Clock size={14} color="#0F766E" />
+                  <Clock size={14} color="#B45309" />
                   <span>Effective Date: September 26, 2026</span>
                 </div>
                 <div className="meta-item">
-                  <Lock size={14} color="#B45309" />
-                  <span>Zero Public Model Training</span>
+                  <ShieldCheck size={14} color="#0F766E" />
+                  <span>Verified Security Standards</span>
                 </div>
               </div>
             </div>
 
             <hr className="divider" />
 
-            {/* Privacy Sections */}
-            <section id="collection" className="content-section">
-              <h2>1. Information We Collect</h2>
+            {/* Terms Sections */}
+            <section id="acceptance" className="content-section">
+              <h2>1. Acceptance of Terms</h2>
               <p>
-                To provide secure, automated transcriptions and summaries, Recall collects specific types of data points when you interact with the Service:
+                By creating an account, authenticating via Google OAuth, or using any component of the Recall meeting intelligence platform ("Service"), you agree to be bound by these Terms of Service ("Terms") and our Privacy Policy.
               </p>
-              <ul>
-                <li><strong>Account Information:</strong> Your profile data (name, email address, profile photo) collected during Supabase SSO authentication.</li>
-                <li><strong>Meeting Content:</strong> Raw audio feeds, screen frames (where applicable), automatic speaker-attributed text strings, structured action logs, and titles generated via meeting integration interfaces.</li>
-                <li><strong>Analytics Metadata:</strong> Anonymized application activity patterns, event latency speeds, and client configurations to optimize platform stability.</li>
-              </ul>
               <p>
-                We strictly limit our metrics gathering to parameters required to maintain optimal software uptime and platform execution.
+                If you are entering into these terms on behalf of a company, organization, or other legal entity, you represent that you possess the authority to bind such entity to these commitments. If you do not agree to these Terms, you may not access or use the Service.
               </p>
             </section>
 
-            <section id="google-use" className="content-section">
-              <h2>2. Google OAuth Permissions & Data Usage</h2>
+            <section id="description" className="content-section">
+              <h2>2. Description of Service</h2>
               <p>
-                Recall operates as a verified partner tool requiring explicit Google authorization. We access API metrics solely to automate workspace coordination. Our application of Google integration permissions meets the strict boundaries defined below:
+                Recall operates as a secure, automated meeting analysis, transcription, and intelligence tool. It records your meetings, generates transcripts, structures summaries, and enables natural language querying over your collective conversation history.
+              </p>
+              <p>
+                We reserve the right to modify, suspend, or discontinue any aspect of the platform (either globally or for individual workspaces) at any time without prior liability or notice.
+              </p>
+            </section>
+
+            <section id="accounts" className="content-section">
+              <h2>3. User Accounts & Workspace Security</h2>
+              <p>
+                To utilize the core features of Recall, you must connect an authenticated user identity via Supabase auth integrations. You are entirely responsible for maintaining the privacy and security of your credentials and workspace configurations.
               </p>
               <div className="callout-box">
-                <Eye size={16} color="#0F766E" strokeWidth={2.2} />
+                <Lock size={16} color="#B45309" strokeWidth={2.2} />
                 <p>
-                  <strong>No Data Sale Guarantee:</strong> Recall never licenses, leases, sells, or monetizes any text, calendar data, audio arrays, or user details retrieved via Google OAuth protocols to third-party brokers, advertisement grids, or analytics consortiums.
+                  <strong>Security Guarantee:</strong> Recall staff cannot access your raw meeting logs, transcripts, or credentials. All session tokens and workspace data points are encrypted at rest and isolated inside verified multi-tenant cloud architectures.
                 </p>
               </div>
               <p>
-                Our requests center explicitly on:
+                You must immediately notify Recall support of any unauthorized use of your account or any other breach of security that you notice.
+              </p>
+            </section>
+
+            <section id="privacy-google" className="content-section">
+              <h2>4. Data Handling & Google Permissions</h2>
+              <p>
+                By linking your Google account, the Service requests specific read/write scopes to capture your calendar entries and associate files with Google Meet spaces. 
+              </p>
+              <p>
+                Specifically, Recall requests permissions to:
               </p>
               <ul>
-                <li><strong>https://www.googleapis.com/auth/calendar.readonly:</strong> Used strictly to cross-reference event timings and invite our session recorder ahead of schedule.</li>
-                <li><strong>Google Meet Authorization:</strong> Used strictly to map transcripts back to specific virtual meeting environments.</li>
+                <li><strong>Google Calendar (.readonly):</strong> To view your timeline of scheduled events and automatically prepare session listeners.</li>
+                <li><strong>Google Meet Permissions:</strong> To safely locate and retrieve recording logs associated with your meetings.</li>
+              </ul>
+              <p>
+                Your connected accounts data is exclusively processed to deliver the core Service functions. We do not sell, distribute, or utilize your conversation content to train general public AI/ML models.
+              </p>
+            </section>
+
+            <section id="proprietary-rights" className="content-section">
+              <h2>5. Proprietary Rights & Content Ownership</h2>
+              <p>
+                Recall does not claim ownership of the media files, voice streams, text transcripts, summaries, or metadata that you upload or capture using our Service ("User Content"). <strong>Your meetings belong entirely to you.</strong>
+              </p>
+              <p>
+                You grant Recall a limited, non-exclusive, royalty-free, worldwide license to process, host, parse, and regenerate your User Content solely to perform the functions of the platform for your authenticated account.
+              </p>
+              <p>
+                The Recall logo, platform architecture, custom visualization UI, visual designs, assets, and software processes are the exclusive intellectual property of Recall.
+              </p>
+            </section>
+
+            <section id="prohibited-conduct" className="content-section">
+              <h2>6. Prohibited Actions</h2>
+              <p>
+                When using the Service, you agree not to:
+              </p>
+              <ul>
+                <li>Record conversations without the explicit knowledge and legal consent of all participating parties in jurisdictions where consent is legally required.</li>
+                <li>Attempt to bypass, reverse engineer, decompile, or break security restrictions guarding the platform's multi-tenant data barriers.</li>
+                <li>Impersonate individuals or access another workspace without explicit written authorization.</li>
+                <li>Utilize automated crawlers or scripts that burden our API rate limiting boundaries.</li>
               </ul>
             </section>
 
-            <section id="processing" className="content-section">
-              <h2>3. Processing & AI Storage Boundaries</h2>
+            <section id="liability" className="content-section">
+              <h2>7. Limitation of Liability</h2>
               <p>
-                To deliver structured decisions, summaries, and conversational search indexes, raw text files pass through advanced natural language processing APIs.
+                THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. RECALL EXPRESSLY DISCLAIMS ALL WARRANTIES OF ANY KIND, WHETHER EXPLICIT OR IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
               </p>
               <p>
-                Our AI architectures adhere to strict security constraints:
-              </p>
-              <ul>
-                <li><strong>Zero Retention Model Training:</strong> Your private conversation history is never fed back into public foundational models. All summaries are computed using closed, zero-data-retention APIs.</li>
-                <li><strong>Data Isolation:</strong> All generated meeting documents are indexed on virtual partitions secured behind active Supabase row-level security policies.</li>
-              </ul>
-            </section>
-
-            <section id="protection" className="content-section">
-              <h2>4. Information Security Blueprint</h2>
-              <p>
-                We protect your data using enterprise-grade infrastructure. All databases are shielded behind robust physical and network barriers:
-              </p>
-              <ul>
-                <li><strong>Encryption in Transit:</strong> All web requests, workspace uploads, and live socket connections are forced through secure HTTPS connections (TLS 1.3 protocol).</li>
-                <li><strong>Encryption at Rest:</strong> Transcripts, session audio arrays, and configuration files are fully encrypted at rest using industry-standard AES-256 databases.</li>
-                <li><strong>Isolated Row Boundaries:</strong> Your personal data exists on physically or logically separated server parameters. We prevent inter-tenant data leakage by enforcing absolute access keys.</li>
-              </ul>
-            </section>
-
-            <section id="retention" className="content-section">
-              <h2>5. Data Retention & Permanent Deletion</h2>
-              <p>
-                You retain ultimate authority over how long Recall keeps your records. Our platform enforces automatic scrubbing protocols:
-              </p>
-              <div className="callout-box warning">
-                <Trash2 size={16} color="#B45309" strokeWidth={2.2} />
-                <p>
-                  <strong>Permanent Scrubbing:</strong> If you elect to delete your workspace or individual records, we permanently scrub all database parameters, transcript cache strings, and linked summaries within 30 days. Action is irreversible.
-                </p>
-              </div>
-              <p>
-                We do not maintain background backups of voluntarily deleted recordings once the final queue execution closes.
+                IN NO EVENT SHALL RECALL OR ITS AFFILIATES BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR ACCESS TO OR INABILITY TO USE THE SERVICE.
               </p>
             </section>
 
-            <section id="cookies" className="content-section">
-              <h2>6. Cookies & Tracking Protocols</h2>
+            <section id="termination" className="content-section">
+              <h2>8. Account Termination</h2>
               <p>
-                Recall utilizes small text strings called cookies to evaluate page state and authenticate identity:
+                You may delete your account and terminate your association with these terms at any time by configuring your account settings or emailing our security desk. Upon deletion, all transcripts, recordings, and cached tokens will be permanently scrubbed from our active cloud databases within 30 days.
               </p>
-              <ul>
-                <li><strong>Essential Cookies:</strong> Cookies required by our database partner (Supabase) to securely authenticate your credentials and prevent request forgery.</li>
-                <li><strong>Performance Metrics:</strong> Lightweight, first-party cookie counters used to measure load delays and asset display performance.</li>
-              </ul>
               <p>
-                We do not integrate tracking networks, third-party advertising cookies, or behavior profiles that monitor your journey across other sites.
+                We reserve the right to temporarily suspend or permanently delete accounts found in explicit violation of Section 6 (Prohibited Actions).
               </p>
-            </section>
-
-            <section id="user-rights" className="content-section">
-              <h2>7. Your Privacy Rights</h2>
-              <p>
-                Depending on your geographic location, you possess explicit statutory entitlements under privacy frameworks (such as GDPR, CCPA, or UK DPA):
-              </p>
-              <ul>
-                <li><strong>Right of Portability:</strong> You may export your meeting transcripts, notes, and records in JSON or plain-text layouts directly from your account dashboard.</li>
-                <li><strong>Right of Rectification:</strong> You may edit speaker profiles, update meeting titles, and adjust extracted summaries.</li>
-                <li><strong>Right to Object:</strong> You can disconnect calendar access instantly via your workspace integration portal, terminating active sync pipelines.</li>
-              </ul>
-            </section>
-
-            <section id="contact" className="content-section">
-              <h2>8. Contact Our Security Desk</h2>
-              <p>
-                If you have security concerns, compliance questions regarding Google API boundaries, or request custom data agreements, our engineering and privacy office is directly reachable.
-              </p>
-              <div className="contact-card">
-                <div className="contact-icon">
-                  <Mail size={18} color="#0F766E" />
-                </div>
-                <div>
-                  <p className="contact-label">Privacy & Security Office</p>
-                  <a href="mailto:security@recall.ai" className="contact-link">security@recall.ai</a>
-                </div>
-              </div>
             </section>
 
             {/* Bottom Navigation CTAs */}
             <div className="bottom-cta-box">
-              <h3>Secure your conversations today</h3>
-              <p>Review our framework anytime or request custom compliance paperwork for your team.</p>
+              <h3>Have questions about these terms?</h3>
+              <p>We believe in absolute transparency. Contact our legal and engineering team for clarification.</p>
               <div className="button-group">
-                <Link href="/terms" className="btn-secondary">
-                  View Terms of Service
-                </Link>
+                <a href="mailto:legal@recall.ai" className="btn-secondary">
+                  <Globe size={14} />
+                  Contact Legal Desk
+                </a>
                 <Link href="/" className="btn-primary">
-                  Acknowledge & Exit
+                  Accept & Return
                   <ArrowLeft size={14} style={{ transform: 'rotate(180deg)' }} />
                 </Link>
               </div>
@@ -404,7 +385,7 @@ export default function PrivacyPage() {
         <div className="footer-content">
           <p>© {new Date().getFullYear()} Recall. All rights reserved.</p>
           <div className="footer-links">
-            <Link href="/terms">Terms of Service</Link>
+            <Link href="/privacy-policy">Privacy Policy</Link>
             <span className="dot-divider">·</span>
             <Link href="/">Back to Home</Link>
           </div>
@@ -448,7 +429,7 @@ body {
 .rc-orb-2 { animation: rc-float-2 28s ease-in-out infinite; }
 
 /* ─── Navigation Bar ─── */
-.privacy-nav {
+.terms-nav {
   position: fixed;
   top: 0;
   left: 0;
@@ -461,7 +442,7 @@ body {
   z-index: 100;
 }
 
-.privacy-nav-container {
+.terms-nav-container {
   max-width: 1200px;
   height: 100%;
   margin: 0 auto;
@@ -471,11 +452,11 @@ body {
   justify-content: space-between;
 }
 
-.privacy-logo-link {
+.terms-logo-link {
   text-decoration: none;
   transition: transform 200ms;
 }
-.privacy-logo-link:hover {
+.terms-logo-link:hover {
   transform: scale(1.02);
 }
 
@@ -503,20 +484,20 @@ body {
 }
 
 /* ─── Page Layout ─── */
-.privacy-root {
+.terms-root {
   max-width: 1200px;
   margin: 0 auto;
   padding: 110px 24px 80px;
 }
 
-.privacy-grid-layout {
+.terms-grid-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 40px;
 }
 
 /* ─── Sidebar Table of Contents ─── */
-.privacy-sidebar {
+.terms-sidebar {
   position: sticky;
   top: 100px;
   height: fit-content;
@@ -575,7 +556,7 @@ body {
   opacity: 0;
   transform: translateX(-4px);
   transition: all 200ms ease;
-  color: #0F766E;
+  color: #B45309;
 }
 
 .toc-link:hover {
@@ -585,7 +566,7 @@ body {
 
 .toc-link.active {
   background: rgba(255, 255, 255, 0.7);
-  color: #0F766E;
+  color: #B45309;
   font-weight: 550;
   box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 0 0 0.5px rgba(255,255,255,0.5) inset;
 }
@@ -608,7 +589,7 @@ body {
 }
 
 /* ─── Reading Area Card ─── */
-.privacy-content-card {
+.terms-content-card {
   background: rgba(255, 255, 255, 0.42);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
@@ -642,11 +623,11 @@ body {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #0F766E;
-  box-shadow: 0 0 6px rgba(15, 118, 110, 0.4);
+  background: #B45309;
+  box-shadow: 0 0 6px rgba(180, 83, 9, 0.4);
 }
 
-.privacy-title {
+.terms-title {
   font-size: 36px;
   font-weight: 600;
   color: #0A0A0A;
@@ -654,7 +635,7 @@ body {
   margin: 0 0 12px;
 }
 
-.privacy-subtitle {
+.terms-subtitle {
   font-size: 16px;
   color: #57534E;
   line-height: 1.5;
@@ -721,16 +702,11 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(15, 118, 110, 0.05);
-  border: 1px solid rgba(15, 118, 110, 0.15);
+  background: rgba(180, 83, 9, 0.05);
+  border: 1px solid rgba(180, 83, 9, 0.15);
   border-radius: 12px;
   padding: 16px 20px;
   margin: 24px 0;
-}
-
-.callout-box.warning {
-  background: rgba(180, 83, 9, 0.05);
-  border-color: rgba(180, 83, 9, 0.15);
 }
 
 .callout-box p {
@@ -738,47 +714,6 @@ body {
   line-height: 1.55;
   color: #57534E;
   margin: 0;
-}
-
-/* ─── Specific Contact Card ─── */
-.contact-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: rgba(255, 255, 255, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 12px;
-  padding: 16px 20px;
-  margin-top: 16px;
-}
-
-.contact-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: rgba(15, 118, 110, 0.08);
-  border: 1px solid rgba(15, 118, 110, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.contact-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: #0A0A0A;
-  margin: 0 0 2px !important;
-}
-
-.contact-link {
-  font-size: 14px;
-  color: #0F766E !important;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.contact-link:hover {
-  text-decoration: underline;
 }
 
 /* ─── Bottom Actions card ─── */
@@ -900,7 +835,7 @@ body {
 
 /* ─── Selection ─── */
 ::selection {
-  background: rgba(15, 118, 110, 0.12);
+  background: rgba(180, 83, 9, 0.12);
   color: #0A0A0A;
 }
 
@@ -913,17 +848,17 @@ body {
 
 /* ─── Responsive Breakdown ─── */
 @media (max-width: 900px) {
-  .privacy-grid-layout {
+  .terms-grid-layout {
     grid-template-columns: 1fr;
     gap: 32px;
   }
-  .privacy-sidebar {
+  .terms-sidebar {
     display: none;
   }
-  .privacy-content-card {
+  .terms-content-card {
     padding: 32px 24px;
   }
-  .privacy-title {
+  .terms-title {
     font-size: 30px;
   }
 }

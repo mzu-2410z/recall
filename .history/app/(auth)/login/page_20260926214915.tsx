@@ -127,12 +127,7 @@ function Logo() {
           <circle cx="12" cy="12" r="11" stroke="#0A0A0A" strokeWidth="0.5" opacity="0.25" strokeDasharray="2.5 2.5" />
         </svg>
       </div>
-      <a href="/" style={{ textDecoration: 'none' }}>
-        <span style={{ fontSize: 19, fontWeight: 600, color: '#0A0A0A', letterSpacing: '-0.45px' }}>
-          Recall
-        </span>
-      </a>
-
+      <span style={{ fontSize: 19, fontWeight: 600, color: '#0A0A0A', letterSpacing: '-0.45px' }}>Recall</span>
     </div>
   )
 }
@@ -281,17 +276,9 @@ export default function LoginPage() {
           <div className="text-center mt-8 relative z-10">
             <p className="text-[12.5px] text-[#78716C] font-normal leading-relaxed">
               By accessing your account, you agree to our<br />
-
-              <a href="/" style={{ textDecoration: 'none' }}>
-                <span className="legal-link cursor-pointer">Terms of Service</span>
-              </a>
-
+              <span className="legal-link cursor-pointer">Terms of Service</span>
               <span className="text-[#D6D3D1] mx-2">·</span>
-              
-              <a href="/" style={{ textDecoration: 'none' }}>
-                <span className="legal-link cursor-pointer">Privacy Policy</span>
-              </a>
-
+              <span className="legal-link cursor-pointer">Privacy Policy</span>
             </p>
           </div>
 

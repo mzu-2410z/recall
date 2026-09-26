@@ -281,17 +281,12 @@ export default function LoginPage() {
           <div className="text-center mt-8 relative z-10">
             <p className="text-[12.5px] text-[#78716C] font-normal leading-relaxed">
               By accessing your account, you agree to our<br />
-
-              <a href="/" style={{ textDecoration: 'none' }}>
+              <a href="/terms" style={{ textDecoration: 'none' }}>
                 <span className="legal-link cursor-pointer">Terms of Service</span>
               </a>
 
               <span className="text-[#D6D3D1] mx-2">·</span>
-              
-              <a href="/" style={{ textDecoration: 'none' }}>
-                <span className="legal-link cursor-pointer">Privacy Policy</span>
-              </a>
-
+              <span className="legal-link cursor-pointer">Privacy Policy</span>
             </p>
           </div>
 
